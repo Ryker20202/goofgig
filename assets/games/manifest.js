@@ -30,5 +30,6 @@ window.GOOFGIG_MANIFEST = [
   "assets/games/gig-018.js",
   "assets/games/gig-019.js",
   "assets/games/gig-020.js",
+  "assets/games/gig-021.js",
 ];
 
