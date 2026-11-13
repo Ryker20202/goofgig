@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>GoofGig — A silly gig a day</title>
+    <meta name="description" content="GoofGig: 20 original one-action mini-games. Ten seconds to learn, zero sign-up. Cut, pour, stack, flick and pop your way to Goof Master." />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+
+      :root {
+        --bg: #fff6ea;
+        --bg-soft: #ffeeda;
+        --card: #ffffff;
+        --ink: #33241a;
+        --ink-soft: #7a5f4d;
+        --line: #f0dcc4;
+        --accent: #ff5a3c;
+        --accent-dark: #d93e22;
+        --gold: #ffb627;
+        --teal: #0e9594;
+        --shadow: 0 10px 30px rgba(120, 62, 20, .14);
+        --radius: 20px;
+        --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+        --font-display: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #211712;
+          --bg-soft: #2b1e16;
+          --card: #2f2119;
+          --ink: #f7e8d8;
+          --ink-soft: #c4a68d;
+          --line: #4a3423;
+          --accent: #ff6b4d;
+          --accent-dark: #ff8468;
+          --gold: #ffb627;
+          --teal: #35c4c3;
+          --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+        }
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 48px; }
+
+      /* ---------- Header ---------- */
+      header.site {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: 12px; padding: 18px 2px 6px; flex-wrap: wrap;
+      }
+      .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+      .logo {
+        font-family: var(--font-display);
+        font-size: clamp(30px, 6vw, 40px); font-weight: 800; letter-spacing: -.5px;
+        line-height: 1; color: var(--ink); text-decoration: none;
+      }
+      .logo .goof { color: var(--accent); }
+      .logo .dot { color: var(--gold); }
+      .tagline { color: var(--ink-soft); font-weight: 700; font-size: 15px; }
+      .points-bar {
+        display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+      }
+      .stat {
+        background: var(--card); border: 2px solid var(--line); border-radius: 14px;
+        padding: 6px 12px; text-align: center; min-width: 78px;
+      }
+      .stat b {
+        display: block; font-family: var(--font-display); font-size: 20px; line-height: 1.1; color: var(--ink);
+      }
+      .stat span { font-size: 11.5px; font-weight: 800; letter-spacing: .8px; color: var(--ink-soft); text-transform: uppercase; }
+      .stat.rank b { color: var(--accent); font-size: 17px; padding-top: 2px; }
+      .points-note { margin: 8px 2px 0; color: var(--ink-soft); font-weight: 700; font-size: 15px; }
+      .points-note b { color: var(--teal); }
+
+      /* ---------- Stage ---------- */
+      .stage-head {
+        display: flex; align-items: flex-end; justify-content: space-between;
+        gap: 12px; margin: 16px 2px 10px; flex-wrap: wrap;
+      }
+      .stage-head h1 {
+        font-family: var(--font-display);
+        font-size: clamp(26px, 5vw, 34px); margin: 0; line-height: 1.05; font-weight: 800;
+      }
+      .stage-head h1 .no { color: var(--accent); font-size: .62em; display: block; letter-spacing: 1px; }
+      .status-pill {
+        font-weight: 800; color: var(--ink-soft); font-size: 15px; white-space: nowrap;
+        background: var(--bg-soft); border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px;
+      }
+      .hint { margin: 0 2px 12px; font-size: 16.5px; font-weight: 700; color: var(--ink-soft); }
+      .hint b { color: var(--ink); }
+
+      .canvas-shell {
+        background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+        box-shadow: var(--shadow); padding: 10px;
+      }
+      canvas#game {
+        display: block; width: 100%; aspect-ratio: 720 / 440; border-radius: 12px;
+        background: linear-gradient(180deg, #fdf0dc 0%, #fbe3c2 78%, #f3d3a4 100%);
+        touch-action: none; cursor: pointer; user-select: none; -webkit-user-select: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        canvas#game { background: linear-gradient(180deg, #3a2a1c 0%, #33241a 78%, #2b1e14 100%); }
+      }
+      .stage-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+      .btn {
+        font-family: var(--font-display); font-weight: 700; font-size: 17px;
+        border: 0; border-radius: 999px; padding: 10px 22px; min-height: 48px;
+        cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+        justify-content: center; gap: 8px; transition: transform .08s ease, background .15s ease;
+      }
+      .btn:active { transform: scale(.97); }
+      .btn-ghost { background: var(--bg-soft); color: var(--ink); border: 2px solid var(--line); }
+      .btn-ghost:hover { border-color: var(--gold); }
+
+      /* ---------- Result ---------- */
+      .result {
+        margin-top: 18px; background: var(--card); border: 2px solid var(--line);
+        border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+        display: none;
+      }
+      .result.show { display: block; }
+      .result-top { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+      .score-big {
+        font-family: var(--font-display); font-weight: 800;
+        font-size: clamp(52px, 12vw, 76px); line-height: .95; color: var(--accent);
+      }
+      .score-big small { display: block; font-size: 15px; color: var(--ink-soft); letter-spacing: 1.5px; font-family: var(--font); font-weight: 800; }
+      .grade { font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 5vw, 32px); line-height: 1.1; }
+      .grade-sub { color: var(--ink-soft); font-weight: 700; margin-top: 4px; font-size: 15.5px; }
+      .points-earned { margin-top: 8px; font-weight: 800; font-size: 15px; color: var(--teal); }
+      .pieces { margin: 18px 0 4px; display: grid; gap: 7px; }
+      .piece-row { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14.5px; }
+      .piece-row .lbl { width: 118px; color: var(--ink-soft); flex: none; }
+      .piece-row .track { flex: 1; height: 16px; border-radius: 6px; background: var(--bg-soft); overflow: hidden; }
+      .piece-row .bar { height: 100%; border-radius: 6px; background: var(--gold); min-width: 4px; }
+      .piece-row .bar.good { background: var(--teal); }
+      .piece-row .pct { width: 76px; text-align: right; flex: none; }
+      .result-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-primary:hover { background: var(--accent-dark); }
+      .btn-x { background: var(--ink); color: var(--bg); }
+      .share-preview { margin-top: 16px; display: none; }
+      .share-preview.show { display: block; }
+      .share-preview img {
+        width: 100%; max-width: 560px; border-radius: 12px; border: 2px solid var(--line); display: block;
+      }
+      .share-preview p { color: var(--ink-soft); font-weight: 700; font-size: 14.5px; margin: 8px 0 0; }
+
+      /* ---------- Gig grid ---------- */
+      section.gigs { margin-top: 44px; }
+      .gigs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 2px 14px; }
+      .gigs-head h2 { font-family: var(--font-display); font-size: 26px; margin: 0; font-weight: 800; }
+      .gigs-head .daily { color: var(--ink-soft); font-weight: 800; font-size: 15px; }
+      .gigs-head .daily b { color: var(--teal); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+      .gig-card {
+        background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+        padding: 18px; display: flex; flex-direction: column; gap: 8px;
+      }
+      .gig-card.playing { border-color: var(--accent); }
+      .gig-card .thumb {
+        height: 92px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, #ffe3b3, #ffc98a); overflow: hidden;
+      }
+      @media (prefers-color-scheme: dark) {
+        .gig-card .thumb { background: linear-gradient(135deg, #4a3520, #3a2a1c); }
+      }
+      .gig-card h3 { font-family: var(--font-display); margin: 2px 0 0; font-size: 21px; font-weight: 800; }
+      .gig-card .num { font-size: 12.5px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent); }
+      .gig-card p { margin: 0; color: var(--ink-soft); font-weight: 700; font-size: 15px; flex: 1; }
+      .gig-card .meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+      .best { font-weight: 800; font-size: 14.5px; color: var(--ink-soft); }
+      .best b { color: var(--teal); }
+      .btn-play { background: var(--gold); color: #4a2c00; padding: 8px 20px; font-size: 16px; min-height: 44px; }
+      .btn-play:hover { background: #ffa90f; }
+
+      footer.site {
+        margin-top: 48px; border-top: 2px solid var(--line); padding-top: 18px;
+        display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        color: var(--ink-soft); font-weight: 700; font-size: 15px;
+      }
+      footer.site .flogo { font-family: var(--font-display); font-weight: 800; color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <header class="site">
+        <div>
+          <div class="brand">
+            <a class="logo" href="#"><span class="goof">Goof</span>Gig<span class="dot">.</span></a>
+            <span class="tagline">A silly gig a day.</span>
+          </div>
+          <p class="points-note">Every finished gig pays <b>Gig Points</b> equal to your score — stack them up and climb from Rookie Goof to Goof Master.</p>
+        </div>
+        <div class="points-bar" aria-label="Your Gig Points">
+          <div class="stat"><b id="statPoints">0</b><span>Gig Points</span></div>
+          <div class="stat"><b id="statPlayed">0</b><span>Gigs played</span></div>
+          <div class="stat rank"><b id="statRank">Rookie Goof</b><span>Your rank</span></div>
+        </div>
+      </header>
+
+      <!-- ============ STAGE (one shared stage; the current game module plugs in here) ============ -->
+      <section id="stage">
+        <div class="stage-head">
+          <h1><span class="no" id="stageNo">GIG #001</span><span id="stageTitle">Cut It Fair!</span></h1>
+          <div class="status-pill" id="gameStatus" aria-live="polite"></div>
+        </div>
+        <p class="hint" id="stageHint"></p>
+
+        <div class="canvas-shell">
+          <canvas id="game" width="720" height="440" aria-label="Game stage: the current GoofGig mini-game plays here"></canvas>
+        </div>
+        <div class="stage-actions">
+          <button class="btn btn-ghost" id="restartBtn" type="button">↺ Restart this gig</button>
+        </div>
+
+        <div class="result" id="result" aria-live="polite">
+          <div class="result-top">
+            <div class="score-big"><span id="scoreNum">0</span><small id="scoreLabel">SCORE</small></div>
+            <div>
+              <div class="grade" id="gradeText">—</div>
+              <div class="grade-sub" id="gradeSub">—</div>
+              <div class="points-earned" id="pointsEarned"></div>
+            </div>
+          </div>
+          <div class="pieces" id="pieces"></div>
+          <div class="result-actions">
+            <button class="btn btn-primary" id="againBtn" type="button">Play again</button>
+            <button class="btn btn-ghost" id="shareImgBtn" type="button">Make share card</button>
+            <a class="btn btn-x" id="shareXBtn" href="#" target="_blank" rel="noopener">Share on X</a>
+          </div>
+          <div class="share-preview" id="sharePreview">
+            <img id="shareImg" alt="Your GoofGig share card with your score, grade and total Gig Points" />
+            <p>Your card is ready — save it and post it anywhere.
+              <a id="downloadCard" href="#" download="goofgig-card.png">Download the image</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ALL GIGS (rendered from the games registry) ============ -->
+      <section class="gigs">
+        <div class="gigs-head">
+          <h2>All gigs</h2>
+          <span class="daily"><b>One new gig, one new file</b> — one action, ten seconds to learn, done.</span>
+        </div>
+        <div class="grid" id="gigGrid"></div>
+      </section>
+
+      <footer class="site">
+        <span><span class="flogo">GoofGig</span> · goofgig.com</span>
+        <span>© GoofGig — all games are original mini-games.</span>
+        <span>No sign-up. No download. Just play.</span>
+      </footer>
+
+    </div>
+
+    <!-- Game registry: the ONLY file edited (one line) when a game is added -->
+    <script src="assets/games/manifest.js"></script>
+    <script>
+      "use strict";
+
+      /* ================================================================
+         GoofGig SHELL — home page, stage, points, share, grid.
+         ----------------------------------------------------------------
+         This file contains NO games. Every game is its own file:
+             assets/games/gig-001.js … gig-020.js
+         and every game is listed in ONE registry file:
+             assets/games/manifest.js
+
+         ADD A NEW GAME (e.g. Gig #021) — two steps, nothing else:
+           1. Drop the new file in:  assets/games/gig-021.js
+              (start from assets/games/gig-template.js)
+           2. Add ONE line to assets/games/manifest.js
+         This shell and all existing game files stay byte-for-byte
+         untouched. The loader below fetches each manifest entry,
+         each file calls registerGame({...}) once, and the game
+         appears in the grid automatically.
+         `api` gives a module: finish(result), blip(freq, ...).
+         ================================================================ */
+
+      var W = 720, H = 440;
+      var GAME_MODULES = [];
+      function registerGame(def) { GAME_MODULES.push(def); }
+      function pad3(n) { return String(n).padStart(3, "0"); }
+
+      /* ================= Helpers ================= */
+      function rr(g, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.arcTo(x + w, y, x + w, y + h, r);
+        g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r);
+        g.arcTo(x, y, x + w, y, r);
+        g.closePath();
+      }
+      function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+      function lerp(a, b, t) { return a + (b - a) * t; }
+      function dist(x1, y1, x2, y2) { var dx = x2 - x1, dy = y2 - y1; return Math.sqrt(dx * dx + dy * dy); }
+      function isDark() { return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches); }
+      function txt(g, s, x, y, size, color, align, weight) {
+        g.fillStyle = color; g.font = (weight || 800) + " " + size + "px 'Segoe UI', system-ui, sans-serif";
+        g.textAlign = align || "center"; g.textBaseline = "middle";
+        g.fillText(s, x, y);
+      }
+      function gradeFor(score, pairs) {
+        if (!pairs) return ["Goof Grade", ""];
+        if (score >= 95) return pairs[0];
+        if (score >= 85) return pairs[1];
+        if (score >= 70) return pairs[2];
+        if (score >= 50) return pairs[3];
+        return pairs[4];
+      }
+
+      /* ================= Tiny synth sounds (generated, no samples) ================= */
+      var AC = null;
+      function audio() {
+        if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; } }
+        if (AC && AC.state === "suspended") AC.resume();
+        return AC;
+      }
+      function blip(freq, dur, type, gain, when) {
+        var ac = audio(); if (!ac) return;
+        var t = ac.currentTime + (when || 0);
+        var o = ac.createOscillator(), gn = ac.createGain();
+        o.type = type || "sine"; o.frequency.setValueAtTime(freq, t);
+        gn.gain.setValueAtTime(gain || 0.12, t);
+        gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        o.connect(gn); gn.connect(ac.destination);
+        o.start(t); o.stop(t + dur);
+      }
+      function sndGood() { blip(660, .12, "triangle", .14); blip(990, .16, "triangle", .12, .07); }
+      function sndBad() { blip(130, .14, "square", .07); }
+      function sndWin(score) {
+        var base = score >= 85 ? [523, 659, 784, 1047] : score >= 60 ? [440, 554, 659] : [330, 262, 220];
+        base.forEach(function (f, i) { blip(f, 0.22, "triangle", 0.12, i * 0.09); });
+      }
+
+      /* ================= Gig Points (this browser only, no login) ================= */
+      var STORE_KEY = "goofgig-points-v1";
+      var store = { total: 0, best: {}, played: {} };
+      try {
+        var raw = window.localStorage.getItem(STORE_KEY);
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed.total === "number") store = parsed; }
+      } catch (e) { /* storage unavailable: points live for this visit only */ }
+      function saveStore() { try { window.localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {} }
+      var RANKS = [
+        [0, "Rookie Goof"], [300, "Goof Apprentice"], [700, "Goof Pro"],
+        [1200, "Goof Expert"], [1800, "Goof Master"], [2600, "Grand Goof"]
+      ];
+      function rankFor(total) {
+        var r = RANKS[0][1];
+        RANKS.forEach(function (row) { if (total >= row[0]) r = row[1]; });
+        return r;
+      }
+      function updatePointsHeader() {
+        document.getElementById("statPoints").textContent = store.total;
+        document.getElementById("statPlayed").textContent = Object.keys(store.played).length + " / " + GAME_MODULES.length;
+        document.getElementById("statRank").textContent = rankFor(store.total);
+      }
+      function awardPoints(n, score) {
+        var isBest = !store.best[n] || score > store.best[n];
+        store.total += score;
+        if (isBest) store.best[n] = score;
+        store.played[n] = true;
+        saveStore(); updatePointsHeader(); refreshGridMeta();
+        return isBest;
+      }
+
+      /* ================================================================
+         SHELL — stage, pointer routing, result panel, share card, grid.
+         Nothing below knows any game's internals; modules plug in
+         through the registry only.
+         ================================================================ */
+      var cv = document.getElementById("game");
+      var ctx = cv.getContext("2d");
+      var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+      var currentDef = null, currentInst = null, currentResult = null, roundOpen = false;
+      var pointer = { down: false, x: 0, y: 0 };
+
+      var gameApi = {
+        reduced: reduced,
+        finish: function (result) {
+          if (!roundOpen) return;
+          roundOpen = false;
+          result.score = clamp(Math.round(result.score), 0, 100);
+          showResult(result);
+        }
+      };
+
+      function startGame(n) {
+        var def = GAME_MODULES.find(function (g) { return g.n === n; });
+        if (!def) return;
+        currentDef = def;
+        currentResult = null;
+        roundOpen = true;
+        document.getElementById("stageNo").textContent = "GIG #" + pad3(def.n);
+        document.getElementById("stageTitle").textContent = def.title;
+        document.getElementById("stageHint").innerHTML = def.hint;
+        document.getElementById("result").classList.remove("show");
+        document.getElementById("sharePreview").classList.remove("show");
+        currentInst = def.create(gameApi);
+        document.querySelectorAll(".gig-card").forEach(function (card) {
+          card.classList.toggle("playing", card.getAttribute("data-n") === String(def.n));
+        });
+      }
+
+      function pointerPos(e) {
+        var r = cv.getBoundingClientRect();
+        return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+      }
+      function nowS() { return performance.now() / 1000; }
+      cv.addEventListener("pointerdown", function (e) {
+        e.preventDefault(); audio();
+        var p = pointerPos(e); pointer.down = true; pointer.x = p.x; pointer.y = p.y;
+        try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+        if (currentInst && currentInst.down) currentInst.down(p, nowS());
+      });
+      cv.addEventListener("pointermove", function (e) {
+        var p = pointerPos(e); pointer.x = p.x; pointer.y = p.y;
+        if (currentInst && currentInst.move) currentInst.move(p, nowS());
+      });
+      function endPointer(e) {
+        if (!pointer.down) return;
+        pointer.down = false;
+        var p = e && e.clientX !== undefined ? pointerPos(e) : { x: pointer.x, y: pointer.y };
+        if (currentInst && currentInst.up) currentInst.up(p, nowS());
+      }
+      cv.addEventListener("pointerup", endPointer);
+      cv.addEventListener("pointercancel", endPointer);
+
+      /* ---------- Result panel + Gig Points ---------- */
+      function showResult(result) {
+        currentResult = result;
+        var def = currentDef;
+        var gp = result.gradeOverride || gradeFor(result.score, def.grades);
+        result.grade = gp[0]; result.sub = gp[1];
+        var isBest = awardPoints(def.n, result.score);
+        sndWin(result.score);
+        document.getElementById("scoreNum").textContent = result.score;
+        document.getElementById("scoreLabel").textContent = def.scoreLabel || "SCORE";
+        document.getElementById("gradeText").textContent = result.grade;
+        document.getElementById("gradeSub").textContent = result.sub;
+        document.getElementById("pointsEarned").textContent =
+          "+" + result.score + " Gig Points" + (isBest && result.score > 0 ? " · new best for Gig #" + pad3(def.n) + "!" : "") +
+          " · Total: " + store.total + " (" + rankFor(store.total) + ")";
+        var piecesEl = document.getElementById("pieces");
+        piecesEl.innerHTML = "";
+        (result.rows || []).forEach(function (row) {
+          var div = document.createElement("div");
+          div.className = "piece-row";
+          div.innerHTML = '<span class="lbl"></span><div class="track"><div class="bar' + (row.good ? " good" : "") + '"></div></div><span class="pct"></span>';
+          div.querySelector(".lbl").textContent = row.label;
+          div.querySelector(".bar").style.width = clamp(row.value, 2, 100) + "%";
+          div.querySelector(".pct").textContent = row.text;
+          piecesEl.appendChild(div);
+        });
+        var xText = "I scored " + result.score + " (" + result.grade + ") on " + def.title + " — Gig #" + pad3(def.n) +
+          " at GoofGig. My Gig Points total: " + store.total + ". Think you can beat it?";
+        document.getElementById("shareXBtn").href =
+          "https://twitter.com/intent/tweet?text=" + encodeURIComponent(xText) +
+          "&url=" + encodeURIComponent("https://goofgig.com");
+        var res = document.getElementById("result");
+        res.classList.add("show");
+        res.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+      }
+
+      /* ---------- Share card (generic; works for every gig) ---------- */
+      function makeShareCard() {
+        var c = document.createElement("canvas");
+        c.width = 1200; c.height = 630;
+        var g = c.getContext("2d");
+        var r = currentResult, def = currentDef;
+        g.fillStyle = "#fff3df"; g.fillRect(0, 0, 1200, 630);
+        g.fillStyle = "#ff5a3c"; g.fillRect(0, 0, 1200, 14);
+        g.fillStyle = "#ffb627"; g.fillRect(0, 616, 1200, 14);
+        // header
+        g.textAlign = "left"; g.textBaseline = "alphabetic";
+        g.font = "800 54px 'Trebuchet MS', 'Segoe UI', sans-serif";
+        g.fillStyle = "#ff5a3c"; g.fillText("Goof", 56, 84);
+        var gw = g.measureText("Goof").width;
+        g.fillStyle = "#33241a"; g.fillText("Gig", 56 + gw, 84);
+        g.font = "700 25px 'Segoe UI', sans-serif"; g.fillStyle = "#7a5f4d";
+        g.fillText("Gig #" + pad3(def.n) + " · " + def.title, 58, 124);
+        // score
+        g.textAlign = "right";
+        g.font = "800 104px 'Trebuchet MS', 'Segoe UI', sans-serif"; g.fillStyle = "#ff5a3c";
+        g.fillText(r.score + "", 1144, 110);
+        g.font = "800 21px 'Segoe UI', sans-serif"; g.fillStyle = "#7a5f4d";
+        g.fillText((def.scoreLabel || "SCORE") + " / 100", 1144, 142);
+        // grade pill
+        g.font = "800 40px 'Trebuchet MS', 'Segoe UI', sans-serif";
+        var tw = g.measureText(r.grade).width;
+        g.fillStyle = "#33241a"; rr(g, 600 - (tw + 52) / 2, 164, tw + 52, 64, 32); g.fill();
+        g.fillStyle = "#ffb627"; g.textAlign = "left";
+        g.fillText(r.grade, 600 - tw / 2, 209);
+        // Gig #001 keeps its sliced-loaf artwork on the card
+        if (def.n === 1 && r.extra && r.extra.sizes) {
+          var b = [0], acc = 0;
+          r.extra.sizes.forEach(function (s) { acc += s / 100; b.push(acc); });
+          var boardY = 448;
+          var bg2 = g.createLinearGradient(0, boardY, 0, boardY + 40);
+          bg2.addColorStop(0, "#b9834e"); bg2.addColorStop(1, "#96682f");
+          g.fillStyle = bg2; rr(g, 90, boardY, 1020, 40, 12); g.fill();
+          var loafTotal = 960, startX = 120;
+          for (var i = 0; i < 5; i++) {
+            var pw = (b[i + 1] - b[i]) * loafTotal;
+            var px = startX + b[i] * loafTotal + i * 4;
+            var grad = g.createLinearGradient(0, 316, 0, 442);
+            grad.addColorStop(0, "#f2b761"); grad.addColorStop(1, "#cf8430");
+            g.fillStyle = grad; rr(g, px, 316, Math.max(12, pw - 4), 126, 18); g.fill();
+            g.fillStyle = "#fbe7bd";
+            if (i > 0) { rr(g, px, 321, 7, 116, 3); g.fill(); }
+            if (i < 4) { rr(g, px + pw - 11, 321, 7, 116, 3); g.fill(); }
+            g.fillStyle = "#5d3a16"; g.font = "800 26px 'Segoe UI', sans-serif"; g.textAlign = "center";
+            g.fillText(r.extra.sizes[i].toFixed(1) + "%", startX + (b[i] + b[i + 1]) / 2 * loafTotal + i * 4, 540);
+          }
+        } else {
+          // generic breakdown bars
+          var rows = (r.rows || []).slice(0, 4);
+          rows.forEach(function (row, i) {
+            var y = 292 + i * 56;
+            g.fillStyle = "#7a5f4d"; g.font = "800 24px 'Segoe UI', sans-serif"; g.textAlign = "left";
+            g.fillText(row.label, 130, y + 8);
+            g.fillStyle = "#f0dcc4"; rr(g, 400, y - 14, 560, 26, 13); g.fill();
+            g.fillStyle = row.good ? "#0e9594" : "#ffb627"; rr(g, 400, y - 14, 560 * clamp(row.value, 0, 100) / 100, 26, 13); g.fill();
+            g.fillStyle = "#33241a"; g.textAlign = "right";
+            g.fillText(row.text, 1144 - 174, y + 8);
+          });
+          // decorative gig medallion
+          g.fillStyle = "#ff5a3c"; g.beginPath(); g.arc(600, 556 - 62, 0, 0, Math.PI * 2); g.fill();
+        }
+        // points line + footer
+        g.textAlign = "center";
+        g.font = "800 30px 'Segoe UI', sans-serif"; g.fillStyle = "#0e9594";
+        g.fillText("Total Gig Points: " + store.total + " · " + rankFor(store.total), 600, 556);
+        g.font = "800 24px 'Segoe UI', sans-serif"; g.fillStyle = "#33241a";
+        g.fillText("GoofGig · goofgig.com — A silly gig a day.", 600, 596);
+        return c;
+      }
+      document.getElementById("shareImgBtn").addEventListener("click", function () {
+        if (!currentResult) return;
+        var card = makeShareCard();
+        var url = card.toDataURL("image/png");
+        document.getElementById("shareImg").src = url;
+        var dl = document.getElementById("downloadCard");
+        dl.href = url;
+        dl.setAttribute("download", "goofgig-gig-" + pad3(currentDef.n) + ".png");
+        document.getElementById("sharePreview").classList.add("show");
+      });
+      document.getElementById("againBtn").addEventListener("click", function () {
+        startGame(currentDef.n);
+        document.getElementById("stage").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+      });
+      document.getElementById("restartBtn").addEventListener("click", function () { startGame(currentDef.n); });
+
+      /* ---------- Grid (rendered purely from the registry) ---------- */
+      var grid = document.getElementById("gigGrid");
+      function renderGrid() {
+        grid.innerHTML = "";
+        GAME_MODULES.forEach(function (def) {
+          var card = document.createElement("article");
+          card.className = "gig-card";
+          card.setAttribute("data-n", def.n);
+          card.innerHTML =
+            '<div class="thumb"><canvas width="300" height="92" aria-hidden="true"></canvas></div>' +
+            '<div class="num">GIG #' + pad3(def.n) + '</div>' +
+            "<h3></h3><p></p>" +
+            '<div class="meta"><span class="best" data-best="' + def.n + '"></span>' +
+            '<button class="btn btn-play" type="button" data-play="' + def.n + '">Play</button></div>';
+          card.querySelector("h3").textContent = def.title;
+          card.querySelector("p").textContent = def.desc;
+          grid.appendChild(card);
+          var thumbCtx = card.querySelector("canvas").getContext("2d");
+          try { def.thumb(thumbCtx); } catch (e) {}
+        });
+        grid.querySelectorAll("[data-play]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            startGame(parseInt(btn.getAttribute("data-play"), 10));
+            document.getElementById("stage").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+          });
+        });
+        refreshGridMeta();
+      }
+      function refreshGridMeta() {
+        grid.querySelectorAll("[data-best]").forEach(function (el) {
+          var n = el.getAttribute("data-best");
+          el.innerHTML = store.best[n] !== undefined ? "Best: <b>" + store.best[n] + "</b>" : "Not played yet";
+        });
+      }
+
+      /* ---------- Canvas sizing + main loop ---------- */
+      function fitCanvas() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = cv.getBoundingClientRect().width;
+        if (!w) return;
+        cv.width = Math.round(w * dpr);
+        cv.height = Math.round(w * (H / W) * dpr);
+        ctx.setTransform(cv.width / W, 0, 0, cv.width / W, 0, 0);
+      }
+      window.addEventListener("resize", fitCanvas);
+
+      var lastTs = 0, statusEl = document.getElementById("gameStatus");
+      function loop(ts) {
+        var dt = lastTs ? Math.min((ts - lastTs) / 1000, 0.05) : 0.016;
+        lastTs = ts;
+        ctx.clearRect(0, 0, W, H);
+        if (currentInst && currentInst.draw) {
+          try { currentInst.draw(ctx, dt, ts / 1000); } catch (e) { /* keep the shell alive */ }
+          if (currentInst.status) {
+            var s = currentInst.status();
+            if (s !== statusEl.textContent) statusEl.textContent = s;
+          }
+        }
+        requestAnimationFrame(loop);
+      }
+
+      /* ---------- Go: load every game file listed in the manifest ---------- */
+      function boot() {
+        GAME_MODULES.sort(function (a, b) { return a.n - b.n; });
+        renderGrid();
+        updatePointsHeader();
+        if (GAME_MODULES.length) startGame(GAME_MODULES[0].n);
+        fitCanvas();
+        requestAnimationFrame(loop);
+      }
+      (function loadManifest() {
+        var list = window.GOOFGIG_MANIFEST || [];
+        var status = document.getElementById("gameStatus");
+        if (!list.length) { if (status) status.textContent = "No gigs in the manifest yet."; boot(); return; }
+        var i = 0;
+        function next() {
+          if (i >= list.length) { boot(); return; }
+          var src = list[i++];
+          var s = document.createElement("script");
+          s.src = src;
+          s.onload = next;
+          s.onerror = next; // a missing file skips, never breaks the shell
+          document.body.appendChild(s);
+        }
+        next();
+      })();
+    </script>
+  </body>
+</html>
