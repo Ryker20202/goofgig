@@ -182,6 +182,20 @@
         .gig-card .thumb { background: linear-gradient(135deg, #4a3520, #3a2a1c); }
       }
       .gig-card .thumb img { width: 300px; height: 92px; display: block; }
+
+      /* ---------- Breadcrumbs + category filter ---------- */
+      .crumbs { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 0 2px 14px; font-weight: 800; font-size: 14.5px; color: var(--ink-soft); }
+      .crumbs button { background: none; border: none; padding: 4px 6px; min-height: 30px; font: inherit; color: var(--teal); cursor: pointer; border-radius: 8px; }
+      .crumbs button:hover { text-decoration: underline; }
+      .crumbs .sep { opacity: .45; }
+      .crumbs .here { color: var(--ink); padding: 4px 6px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 2px 14px; }
+      .chip { border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 15px; font-weight: 800; font-size: 15px; cursor: pointer; min-height: 42px; font-family: inherit; }
+      .chip .cnt { opacity: .6; font-size: 13px; margin-left: 3px; }
+      .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .chip.on .cnt { opacity: .85; }
+      .more-wrap { text-align: center; margin-top: 20px; }
+      .grid-note { text-align: center; color: var(--ink-soft); font-weight: 700; font-size: 14px; margin: 10px 0 0; }
       .gig-card h3 { font-family: var(--font-display); margin: 2px 0 0; font-size: 21px; font-weight: 800; }
       .gig-card .num { font-size: 12.5px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent); }
       .gig-card p { margin: 0; color: var(--ink-soft); font-weight: 700; font-size: 15px; flex: 1; }
@@ -201,6 +215,8 @@
   </head>
   <body>
     <div class="wrap">
+
+      <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
 
       <header class="site">
         <div>
@@ -262,7 +278,12 @@
           <h2>All gigs</h2>
           <span class="daily"><b>One new gig, one new file</b> — one action, ten seconds to learn, done.</span>
         </div>
+        <div class="chips" id="catChips" role="tablist" aria-label="Game categories"></div>
         <div class="grid" id="gigGrid"></div>
+        <div class="more-wrap">
+          <button class="btn btn-ghost" id="moreBtn" type="button" hidden>Show more gigs</button>
+          <p class="grid-note" id="gridNote"></p>
+        </div>
       </section>
 
       <footer class="site">
@@ -306,6 +327,17 @@
       var TOTAL_GIGS = MANIFEST.length;
       var LOAD_PROMISES = {};
       var wantN = 0; // the gig the player most recently asked for
+      var CATS = [
+        ["all", "🎲 All gigs"], ["timing", "⏱ Timing & Reflex"], ["hold", "✋ Hold & Release"],
+        ["drag", "🧲 Drag & Drop"], ["move", "🏃 Move & Catch"], ["aim", "🎯 Aim & Launch"],
+        ["brain", "🧠 Brain & Memory"]
+      ];
+      function catName(key) { var c = CATS.find(function (x) { return x[0] === key; }); return c ? c[1] : key; }
+      function entryN(entry) { return parseInt(entry.f.replace(/\D/g, ""), 10); }
+      function entryByN(n) { return MANIFEST.find(function (e) { return entryN(e) === n; }); }
+      var curCat = "all";       // active category filter
+      var PAGE = 96, shownMax = PAGE; // grid renders in batches, never all 2000 at once
+      var lastPlayed = null;    // {n, t, c} for the breadcrumb trail
       function ensureGame(n) {
         if (GAME_MODULES.some(function (g) { return g.n === n; })) return Promise.resolve(true);
         if (LOAD_PROMISES[n]) return LOAD_PROMISES[n];
@@ -451,6 +483,7 @@
         document.getElementById("stageHint").innerHTML = def.hint;
         document.getElementById("result").classList.remove("show");
         document.getElementById("sharePreview").classList.remove("show");
+        notePlayed(def);
         currentInst = def.create(gameApi);
         document.querySelectorAll(".gig-card").forEach(function (card) {
           card.classList.toggle("playing", card.getAttribute("data-n") === String(def.n));
@@ -608,10 +641,14 @@
 
       /* ---------- Grid (rendered purely from the registry) ---------- */
       var grid = document.getElementById("gigGrid");
+      function filteredManifest() {
+        return curCat === "all" ? MANIFEST : MANIFEST.filter(function (e) { return e.c === curCat; });
+      }
       function renderGrid() {
         grid.innerHTML = "";
-        MANIFEST.forEach(function (entry) {
-          var n = parseInt(entry.f.replace(/\D/g, ""), 10);
+        var list = filteredManifest();
+        list.slice(0, shownMax).forEach(function (entry) {
+          var n = entryN(entry);
           var card = document.createElement("article");
           card.className = "gig-card";
           card.setAttribute("data-n", n);
@@ -635,6 +672,70 @@
           });
         });
         refreshGridMeta();
+        var total = list.length;
+        document.getElementById("moreBtn").hidden = shownMax >= total;
+        document.getElementById("gridNote").textContent =
+          "Showing " + Math.min(shownMax, total) + " of " + total + (curCat === "all" ? " gigs" : " gigs in " + catName(curCat));
+      }
+      function renderChips() {
+        var wrap = document.getElementById("catChips");
+        wrap.innerHTML = "";
+        CATS.forEach(function (c) {
+          var cnt = c[0] === "all" ? MANIFEST.length : MANIFEST.filter(function (e) { return e.c === c[0]; }).length;
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "chip" + (curCat === c[0] ? " on" : "");
+          b.innerHTML = c[1] + '<span class="cnt">' + cnt + "</span>";
+          b.addEventListener("click", function () { setFilter(c[0]); });
+          wrap.appendChild(b);
+        });
+      }
+      function setFilter(cat) {
+        curCat = cat; shownMax = PAGE;
+        renderChips(); renderGrid(); renderCrumbs();
+      }
+      function notePlayed(def) {
+        var e = entryByN(def.n);
+        lastPlayed = { n: def.n, t: def.title, c: e ? e.c : "all" };
+        renderCrumbs();
+      }
+      function renderCrumbs() {
+        var nav = document.getElementById("crumbs");
+        nav.innerHTML = "";
+        function crumb(label, fn) {
+          var b = document.createElement("button");
+          b.type = "button"; b.textContent = label;
+          b.addEventListener("click", fn);
+          nav.appendChild(b);
+        }
+        function sep() { var s = document.createElement("span"); s.className = "sep"; s.textContent = "›"; nav.appendChild(s); }
+        function here(label) { var s = document.createElement("span"); s.className = "here"; s.textContent = label; nav.appendChild(s); }
+        crumb("🏠 Home", function () {
+          setFilter("all");
+          window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+        });
+        sep();
+        if (lastPlayed) {
+          crumb(catName(lastPlayed.c), function () {
+            setFilter(lastPlayed.c);
+            document.getElementById("gigGrid").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+          });
+          sep();
+          here("Gig #" + pad3(lastPlayed.n) + " " + lastPlayed.t);
+        } else if (curCat !== "all") {
+          here(catName(curCat));
+        } else {
+          here("All gigs");
+        }
+      }
+      function showMore() { shownMax += PAGE; renderGrid(); }
+      document.getElementById("moreBtn").addEventListener("click", showMore);
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (es) {
+          es.forEach(function (en) {
+            if (en.isIntersecting && !document.getElementById("moreBtn").hidden) showMore();
+          });
+        }, { rootMargin: "600px" }).observe(document.getElementById("moreBtn"));
       }
       function refreshGridMeta() {
         grid.querySelectorAll("[data-best]").forEach(function (el) {
@@ -671,6 +772,8 @@
 
       /* ---------- Go: paint the page NOW; games fetch themselves on Play ---------- */
       function boot() {
+        renderChips();
+        renderCrumbs();
         renderGrid();
         updatePointsHeader();
         fitCanvas();
