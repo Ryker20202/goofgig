@@ -626,6 +626,9 @@
           grid.appendChild(card);
         });
         grid.querySelectorAll("[data-play]").forEach(function (btn) {
+          var warm = function () { ensureGame(parseInt(btn.getAttribute("data-play"), 10)); };
+          btn.addEventListener("pointerenter", warm); // prefetch on intent: hover / finger approaching
+          btn.addEventListener("touchstart", warm, { passive: true });
           btn.addEventListener("click", function () {
             startGame(parseInt(btn.getAttribute("data-play"), 10));
             document.getElementById("stage").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
