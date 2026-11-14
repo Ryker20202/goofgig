@@ -12,7 +12,7 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
     <title>GoofGig — A silly gig a day</title>
-    <meta name="description" content="GoofGig: 20 original one-action mini-games. Ten seconds to learn, zero sign-up. Cut, pour, stack, flick and pop your way to Goof Master." />
+    <meta name="description" content="GoofGig: 100 original one-action mini-games. Ten seconds to learn, zero sign-up. Cut, pour, stack, flick and pop your way to Goof Master." />
     <style>
       button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
 
@@ -181,6 +181,7 @@
       @media (prefers-color-scheme: dark) {
         .gig-card .thumb { background: linear-gradient(135deg, #4a3520, #3a2a1c); }
       }
+      .gig-card .thumb img { width: 300px; height: 92px; display: block; }
       .gig-card h3 { font-family: var(--font-display); margin: 2px 0 0; font-size: 21px; font-weight: 800; }
       .gig-card .num { font-size: 12.5px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent); }
       .gig-card p { margin: 0; color: var(--ink-soft); font-weight: 700; font-size: 15px; flex: 1; }
@@ -281,24 +282,44 @@
          GoofGig SHELL — home page, stage, points, share, grid.
          ----------------------------------------------------------------
          This file contains NO games. Every game is its own file:
-             assets/games/gig-001.js … gig-020.js
+             assets/games/gig-001.js … gig-100.js
          and every game is listed in ONE registry file:
              assets/games/manifest.js
 
-         ADD A NEW GAME (e.g. Gig #021) — two steps, nothing else:
-           1. Drop the new file in:  assets/games/gig-021.js
+         ADD A NEW GAME (e.g. Gig #101) — two steps, nothing else:
+           1. Drop the new file in:  assets/games/gig-101.js
               (start from assets/games/gig-template.js)
            2. Add ONE line to assets/games/manifest.js
+              (file + the title/desc shown on its grid card)
          This shell and all existing game files stay byte-for-byte
-         untouched. The loader below fetches each manifest entry,
-         each file calls registerGame({...}) once, and the game
-         appears in the grid automatically.
+         untouched. The grid renders instantly from the manifest;
+         a game's file is fetched ON DEMAND, only when its Play
+         button is pressed, and card pictures are pre-rendered
+         PNGs in assets/thumbs/ (a missing one just shows a tile).
          `api` gives a module: finish(result), blip(freq, ...).
          ================================================================ */
 
       var W = 720, H = 440;
       var GAME_MODULES = [];
       function registerGame(def) { GAME_MODULES.push(def); }
+      var MANIFEST = window.GOOFGIG_MANIFEST || [];
+      var TOTAL_GIGS = MANIFEST.length;
+      var LOAD_PROMISES = {};
+      var wantN = 0; // the gig the player most recently asked for
+      function ensureGame(n) {
+        if (GAME_MODULES.some(function (g) { return g.n === n; })) return Promise.resolve(true);
+        if (LOAD_PROMISES[n]) return LOAD_PROMISES[n];
+        var entry = MANIFEST.find(function (e) { return parseInt(e.f.replace(/\D/g, ""), 10) === n; });
+        if (!entry) return Promise.resolve(false);
+        LOAD_PROMISES[n] = new Promise(function (resolve) {
+          var s = document.createElement("script");
+          s.src = entry.f;
+          s.onload = function () { resolve(true); };
+          s.onerror = function () { resolve(false); }; // a missing file skips, never breaks the shell
+          document.body.appendChild(s);
+        });
+        return LOAD_PROMISES[n];
+      }
       function pad3(n) { return String(n).padStart(3, "0"); }
 
       /* ================= Helpers ================= */
@@ -373,7 +394,7 @@
       }
       function updatePointsHeader() {
         document.getElementById("statPoints").textContent = store.total;
-        document.getElementById("statPlayed").textContent = Object.keys(store.played).length + " / " + GAME_MODULES.length;
+        document.getElementById("statPlayed").textContent = Object.keys(store.played).length + " / " + TOTAL_GIGS;
         document.getElementById("statRank").textContent = rankFor(store.total);
       }
       function awardPoints(n, score) {
@@ -408,8 +429,20 @@
       };
 
       function startGame(n) {
+        wantN = n;
         var def = GAME_MODULES.find(function (g) { return g.n === n; });
-        if (!def) return;
+        if (!def) {
+          var entry = MANIFEST.find(function (e) { return parseInt(e.f.replace(/\D/g, ""), 10) === n; });
+          if (entry) {
+            document.getElementById("stageNo").textContent = "GIG #" + pad3(n);
+            document.getElementById("stageTitle").textContent = entry.t;
+            document.getElementById("stageHint").textContent = "";
+            var st = document.getElementById("gameStatus");
+            if (st) st.textContent = "Loading Gig #" + pad3(n) + "…";
+          }
+          ensureGame(n).then(function (ok) { if (ok && wantN === n) startGame(n); });
+          return;
+        }
         currentDef = def;
         currentResult = null;
         roundOpen = true;
@@ -577,21 +610,20 @@
       var grid = document.getElementById("gigGrid");
       function renderGrid() {
         grid.innerHTML = "";
-        GAME_MODULES.forEach(function (def) {
+        MANIFEST.forEach(function (entry) {
+          var n = parseInt(entry.f.replace(/\D/g, ""), 10);
           var card = document.createElement("article");
           card.className = "gig-card";
-          card.setAttribute("data-n", def.n);
+          card.setAttribute("data-n", n);
           card.innerHTML =
-            '<div class="thumb"><canvas width="300" height="92" aria-hidden="true"></canvas></div>' +
-            '<div class="num">GIG #' + pad3(def.n) + '</div>' +
+            '<div class="thumb"><img src="assets/thumbs/gig-' + pad3(n) + '.png" width="300" height="92" loading="lazy" alt="" onerror="this.remove()"></div>' +
+            '<div class="num">GIG #' + pad3(n) + '</div>' +
             "<h3></h3><p></p>" +
-            '<div class="meta"><span class="best" data-best="' + def.n + '"></span>' +
-            '<button class="btn btn-play" type="button" data-play="' + def.n + '">Play</button></div>';
-          card.querySelector("h3").textContent = def.title;
-          card.querySelector("p").textContent = def.desc;
+            '<div class="meta"><span class="best" data-best="' + n + '"></span>' +
+            '<button class="btn btn-play" type="button" data-play="' + n + '">Play</button></div>';
+          card.querySelector("h3").textContent = entry.t;
+          card.querySelector("p").textContent = entry.d;
           grid.appendChild(card);
-          var thumbCtx = card.querySelector("canvas").getContext("2d");
-          try { def.thumb(thumbCtx); } catch (e) {}
         });
         grid.querySelectorAll("[data-play]").forEach(function (btn) {
           btn.addEventListener("click", function () {
@@ -634,31 +666,15 @@
         requestAnimationFrame(loop);
       }
 
-      /* ---------- Go: load every game file listed in the manifest ---------- */
+      /* ---------- Go: paint the page NOW; games fetch themselves on Play ---------- */
       function boot() {
-        GAME_MODULES.sort(function (a, b) { return a.n - b.n; });
         renderGrid();
         updatePointsHeader();
-        if (GAME_MODULES.length) startGame(GAME_MODULES[0].n);
         fitCanvas();
         requestAnimationFrame(loop);
+        if (MANIFEST.length) startGame(parseInt(MANIFEST[0].f.replace(/\D/g, ""), 10));
       }
-      (function loadManifest() {
-        var list = window.GOOFGIG_MANIFEST || [];
-        var status = document.getElementById("gameStatus");
-        if (!list.length) { if (status) status.textContent = "No gigs in the manifest yet."; boot(); return; }
-        var i = 0;
-        function next() {
-          if (i >= list.length) { boot(); return; }
-          var src = list[i++];
-          var s = document.createElement("script");
-          s.src = src;
-          s.onload = next;
-          s.onerror = next; // a missing file skips, never breaks the shell
-          document.body.appendChild(s);
-        }
-        next();
-      })();
+      boot();
     </script>
   </body>
 </html>
