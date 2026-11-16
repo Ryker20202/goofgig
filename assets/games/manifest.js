@@ -600,5 +600,6 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-597.js","t":"The Wrong Shoe","d":"One shoe wandered onto the wrong foot.","c":"brain"},
   {"f":"assets/games/gig-598.js","t":"The Stranger","d":"One traveler took the wrong train.","c":"brain"},
   {"f":"assets/games/gig-599.js","t":"The Wrong Book","d":"One book wandered onto the wrong shelf.","c":"brain"},
-  {"f":"assets/games/gig-600.js","t":"The Odd Fruit","d":"One fruit wandered into the wrong basket.","c":"brain"}
+  {"f":"assets/games/gig-600.js","t":"The Odd Fruit","d":"One fruit wandered into the wrong basket.","c":"brain"},
+  {"f":"assets/games/gig-601.js","t":"Wrap the Scarf","d":"Two wraps, no chills. Round and round it goes.","c":"drag"}
 ];
