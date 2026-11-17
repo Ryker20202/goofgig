@@ -601,5 +601,15 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-598.js","t":"The Stranger","d":"One traveler took the wrong train.","c":"brain"},
   {"f":"assets/games/gig-599.js","t":"The Wrong Book","d":"One book wandered onto the wrong shelf.","c":"brain"},
   {"f":"assets/games/gig-600.js","t":"The Odd Fruit","d":"One fruit wandered into the wrong basket.","c":"brain"},
-  {"f":"assets/games/gig-601.js","t":"Wrap the Scarf","d":"Two wraps, no chills. Round and round it goes.","c":"drag"}
+  {"f":"assets/games/gig-601.js","t":"Wrap the Scarf","d":"Two wraps, no chills. Round and round it goes.","c":"drag"},
+  {"f":"assets/games/gig-602.js","t":"Seagull Selfie","d":"A gull is crossing the sky. Snap it inside the frame.","c":"timing"},
+  {"f":"assets/games/gig-603.js","t":"Pump the Swing","d":"Tap at the top of each swing to pump higher. Reach the flag!","c":"timing"},
+  {"f":"assets/games/gig-604.js","t":"Hold the Door","d":"Hold the door open for everyone coming through. Let go at the right moment.","c":"hold"},
+  {"f":"assets/games/gig-605.js","t":"Comb the Cat","d":"Brush the cat's fur the right way. Wrong way and the cat objects.","c":"drag"},
+  {"f":"assets/games/gig-606.js","t":"Fold the Map","d":"Fold the road map back up. Four corners, four marks, one tidy square.","c":"drag"},
+  {"f":"assets/games/gig-607.js","t":"Herd the Ducks","d":"Five ducklings are wandering off. Gently push them into the pond.","c":"move"},
+  {"f":"assets/games/gig-608.js","t":"Chase the Runaway Hat","d":"The wind stole your hat. Catch it before it reaches the pond!","c":"move"},
+  {"f":"assets/games/gig-609.js","t":"Skim the Stone","d":"Pull back, let fly, count the skips. Flat stones only.","c":"aim"},
+  {"f":"assets/games/gig-610.js","t":"Coin in the Fountain","d":"Flick a coin into the fountain. The middle ring pays best. Make a wish.","c":"aim"},
+  {"f":"assets/games/gig-611.js","t":"Count the Change","d":"The coins flash, the cloth covers them. How much was on the counter?","c":"brain"}
 ];
