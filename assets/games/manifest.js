@@ -611,5 +611,6 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-608.js","t":"Chase the Runaway Hat","d":"The wind stole your hat. Catch it before it reaches the pond!","c":"move"},
   {"f":"assets/games/gig-609.js","t":"Skim the Stone","d":"Pull back, let fly, count the skips. Flat stones only.","c":"aim"},
   {"f":"assets/games/gig-610.js","t":"Coin in the Fountain","d":"Flick a coin into the fountain. The middle ring pays best. Make a wish.","c":"aim"},
-  {"f":"assets/games/gig-611.js","t":"Count the Change","d":"The coins flash, the cloth covers them. How much was on the counter?","c":"brain"}
+  {"f":"assets/games/gig-611.js","t":"Count the Change","d":"The coins flash, the cloth covers them. How much was on the counter?","c":"brain"},
+  {"f":"assets/games/gig-612.js","t":"Hold Your Breath","d":"Dive down, grab the pearls, surface before your air runs out.","c":"hold"}
 ];
