@@ -171,7 +171,7 @@ registerGame({
         }
         if (drag >= 0) drawPiece(g, clothes[drag], t);
         if (flash > 0) { flash -= dt; txt(g, flashTxt, 360, 52, 26, dark ? "#fde68a" : "#b45309"); }
-        txt(g, "Hung: " + hung + " / 5", 360, 425, 18, dark ? "#e2e8f0" : "#14532d");
+        txt(g, "Hung: " + hung + " / 5", 360, 250, 18, dark ? "#e2e8f0" : "#14532d");
         var tl = clamp(1 - t / LIMIT, 0, 1);
         g.fillStyle = dark ? "#223140" : "#e0f2fe"; rr(g, 160, H - 26, 400, 9, 4); g.fill();
         g.fillStyle = tl > 0.3 ? "#16a34a" : "#dc2626"; rr(g, 160, H - 26, 400 * tl, 9, 4); g.fill();
