@@ -160,7 +160,7 @@ registerGame({
           g.fillStyle = "#92400e"; rr(g, PX + 16, py - 2 - bobY, 18, 13, 3); g.fill();
         }
         if (flash > 0) { flash -= dt; txt(g, flashTxt, 360, 52, 26, dark ? "#fde68a" : "#b45309"); }
-        txt(g, "Tickets " + tickets + " / " + TICKET_GOAL + "    Coins " + coins + "    Stumbles " + hits, 360, 420, 16, dark ? "#e2e8f0" : "#1e293b");
+        txt(g, "Tickets " + tickets + " / " + TICKET_GOAL + "    Coins " + coins + "    Stumbles " + hits, 360, 78, 16, dark ? "#e2e8f0" : "#1e293b");
         var tl = clamp(1 - t / LIMIT, 0, 1);
         g.fillStyle = dark ? "#223140" : "#e0f2fe"; rr(g, 160, H - 26, 400, 9, 4); g.fill();
         g.fillStyle = tl > 0.3 ? "#16a34a" : "#dc2626"; rr(g, 160, H - 26, 400 * tl, 9, 4); g.fill();
