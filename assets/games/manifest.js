@@ -614,5 +614,6 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-611.js","t":"Count the Change","d":"The coins flash, the cloth covers them. How much was on the counter?","c":"brain"},
   {"f":"assets/games/gig-612.js","t":"Hold Your Breath","d":"Dive down, grab the pearls, surface before your air runs out.","c":"hold"},
   {"f":"assets/games/gig-613.js","t":"The Revolving Door","d":"The door keeps spinning. Step through the gap the moment it faces you.","c":"timing"},
-  {"f":"assets/games/gig-614.js","t":"Hang the Laundry","d":"Five wet clothes, one sunny clothesline. Drag each piece up and peg it on the line.","c":"drag"}
+  {"f":"assets/games/gig-614.js","t":"Hang the Laundry","d":"Five wet clothes, one sunny clothesline. Drag each piece up and peg it on the line.","c":"drag"},
+  {"f":"assets/games/gig-615.js","t":"Catch the Bus","d":"The bus leaves in 20 seconds. Dodge bins, puddles and pigeons, grab your tickets on the run.","c":"move"}
 ];
