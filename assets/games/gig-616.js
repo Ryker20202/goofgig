@@ -190,7 +190,7 @@ registerGame({
         if (lastDist >= 0 && phase !== "fly") txt(g, "Last landing: " + Math.round(lastDist) + " px from the bowl", 360, 196, 14, dark ? "#94a3b8" : "#64748b");
         // timer (bar at the very bottom, text above it — never overlapping)
         var tl = clamp(1 - t / LIMIT, 0, 1);
-        txt(g, "Time left: " + Math.max(0, Math.ceil(LIMIT - t)) + "s", 360, H - 40, 13, dark ? "#e2e8f0" : "#1e293b");
+        txt(g, "Time left: " + Math.max(0, Math.ceil(LIMIT - t)) + "s", 360, 330, 13, dark ? "#e2e8f0" : "#1e293b");
         g.fillStyle = dark ? "#223140" : "#e0f2fe"; rr(g, 160, H - 22, 400, 9, 4); g.fill();
         g.fillStyle = tl > 0.3 ? "#16a34a" : "#dc2626"; rr(g, 160, H - 22, 400 * tl, 9, 4); g.fill();
       }
