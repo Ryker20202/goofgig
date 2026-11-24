@@ -617,5 +617,6 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-614.js","t":"Hang the Laundry","d":"Five wet clothes, one sunny clothesline. Drag each piece up and peg it on the line.","c":"drag"},
   {"f":"assets/games/gig-615.js","t":"Catch the Bus","d":"The bus leaves in 20 seconds. Dodge bins, puddles and pigeons, grab your tickets on the run.","c":"move"},
   {"f":"assets/games/gig-616.js","t":"Toss the Keys","d":"Five tosses, one bowl by the door, and a breeze with opinions. Land the keys where they belong.","c":"aim"},
-  {"f":"assets/games/gig-617.js","t":"The Fridge Thief","d":"Something vanished from the fridge while you blinked. Name the missing snack.","c":"brain"}
+  {"f":"assets/games/gig-617.js","t":"The Fridge Thief","d":"Something vanished from the fridge while you blinked. Name the missing snack.","c":"brain"},
+  {"f":"assets/games/gig-618.js","t":"Hold the Sparkler","d":"Hold to burn the sparkler, steer the sparks into the jar. Too hot and it flares out.","c":"hold"}
 ];
