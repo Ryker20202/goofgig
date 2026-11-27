@@ -620,5 +620,6 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-617.js","t":"The Fridge Thief","d":"Something vanished from the fridge while you blinked. Name the missing snack.","c":"brain"},
   {"f":"assets/games/gig-618.js","t":"Hold the Sparkler","d":"Hold to burn the sparkler, steer the sparks into the jar. Too hot and it flares out.","c":"hold"},
   {"f":"assets/games/gig-619.js","t":"Lunch Tray Balance","d":"Carry five dishes across the cafeteria. The tray tilts, the bumps come, the floor is hungry.","c":"move"},
-  {"f":"assets/games/gig-620.js","t":"Sharpen the Pencil","d":"Hold to sharpen, let go in the green. Too little is blunt, too much snaps the tip.","c":"hold"}
+  {"f":"assets/games/gig-620.js","t":"Sharpen the Pencil","d":"Hold to sharpen, let go in the green. Too little is blunt, too much snaps the tip.","c":"hold"},
+  {"f":"assets/games/gig-621.js","t":"Water the Plants","d":"Drag the can over the thirsty plants. Each one likes its water just right — too little stays thirsty, too much drowns it.","c":"drag"},
 ];
