@@ -622,4 +622,5 @@ window.GOOFGIG_MANIFEST = [
   {"f":"assets/games/gig-619.js","t":"Lunch Tray Balance","d":"Carry five dishes across the cafeteria. The tray tilts, the bumps come, the floor is hungry.","c":"move"},
   {"f":"assets/games/gig-620.js","t":"Sharpen the Pencil","d":"Hold to sharpen, let go in the green. Too little is blunt, too much snaps the tip.","c":"hold"},
   {"f":"assets/games/gig-621.js","t":"Water the Plants","d":"Drag the can over the thirsty plants. Each one likes its water just right — too little stays thirsty, too much drowns it.","c":"drag"},
+  {"f":"assets/games/gig-622.js","t":"The Price Switch","d":"One price tag changed while the lights blinked. Spot it before the checkout beeps.","c":"brain"},
 ];
